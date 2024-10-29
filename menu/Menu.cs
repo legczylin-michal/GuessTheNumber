@@ -2,13 +2,49 @@
 
 namespace GuessTheNumber.menu
 {
+    interface IDynamicOption
+    {
+        string Evaluate();
+    }
+
+    /// <summary>
+    /// BasicDynamicOption
+    /// </summary>
+    internal class BDO : IDynamicOption
+    {
+        private string _option;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pOption"></param>
+        public BDO(string pOption)
+        {
+            _option = pOption;
+        }
+
+        /// <summary>
+        /// BasicDynamicOption.Generate
+        /// </summary>
+        /// <param name="pOption"></param>
+        /// <returns></returns>
+        public static BDO G(string pOption)
+        {
+            return new BDO(pOption);
+        }
+
+        public string Evaluate()
+        {
+            return _option;
+        }
+    }
+
     internal class Menu
     {
         private string _title;
         private List<MenuPage> _pages;
         private int _current;
         private int _maxOptions;
-        private int _lengthOfTheLongestOption;
 
         public Menu(int pMaxOptions)
         {
@@ -16,7 +52,6 @@ namespace GuessTheNumber.menu
             _pages = [new MenuPage(pMaxOptions)];
             _current = 0;
             _maxOptions = pMaxOptions;
-            _lengthOfTheLongestOption = 0;
         }
 
         public void SetTitle(string pTitle)
@@ -24,43 +59,28 @@ namespace GuessTheNumber.menu
             _title = pTitle;
         }
 
-        public void AddOption(int pID, string pName)
+        public void AddOption(int pID, IDynamicOption pOption)
         {
             if (_pages[^1].Full()) _pages.Add(new MenuPage(_maxOptions));
 
-            _pages[^1].AddOption(pID, pName);
-
-            if (_lengthOfTheLongestOption < pName.Length) _lengthOfTheLongestOption = pName.Length;
+            _pages[^1].AddOption(pID, pOption);
         }
 
         public override string? ToString()
         {
-            int rightPadding = 1;
-            int leftPadding = 1;
-
-            int optionLineWidth = 1 + 1 + 1 + 1 + _lengthOfTheLongestOption;
-            int width = optionLineWidth > _title.Length ? optionLineWidth : _title.Length;
-
             var result = new StringBuilder();
 
-            var line = new StringBuilder();
-            line.Append('+').Append(Utils.Rep("-", 3)).Append('+').Append(Utils.Rep("-", width - 3 + rightPadding)).Append('+').Append('\n');
+            var currentPage = _pages[_current];
 
-            if (_title != string.Empty)
+            for (int i = 0; i < currentPage.Options.Count; i++)
             {
-                result.Append('+').Append(Utils.Rep("-", leftPadding + width + rightPadding)).Append('+').Append('\n');
-                result.Append("| ").Append(_title).Append(Utils.Rep(" ", width - _title.Length)).Append(" |").Append('\n');
-            }
+                result.Append(' ');
+                if (i == currentPage.Current.Index) result.Append('o');
+                else result.Append(' ');
+                result.Append(' ');
 
-            result.Append(line);
-
-            var page = _pages[_current];
-
-            for (int i = 0; i < page.Options.Count; i++)
-            {
-                var option = page.Options[i];
-                result.Append("| ").Append(i == page.Current.Index ? "o" : " ").Append(" | ").Append(option.Name).Append(Utils.Rep(" ", width - 4 - option.Name.Length)).Append(" |").Append('\n');
-                result.Append(line);
+                result.Append(currentPage.Options[i].Option.Evaluate());
+                result.Append('\n');
             }
 
             return result.ToString();

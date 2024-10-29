@@ -20,5 +20,15 @@
                 return Scores[^1].Date;
             }
         }
+
+        public Score? BestScore
+        {
+            get
+            {
+                if (Scores.Count == 0) return null;
+
+                return Scores.OrderBy(p => p.Attempts).First();
+            }
+        }
     }
 }

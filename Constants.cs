@@ -10,6 +10,6 @@
         public static string SETTINGS_FILE_NAME = "settings.json";
         public static string PROFILES_FILE_NAME = "profiles.json";
 
-        public static int GUEST_PROFILE_ID = 0;
+        public static int GUEST_PROFILE_ID = 1;
     }
 }
